@@ -5,9 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { resolve } from 'path';
 import { useEffect, useState } from 'react';
-
- import {UserTabs} from '../../components/layout/UserTabs'
 import toast from 'react-hot-toast';
+import UserTabs from "../../components/layout/UserTabs";
 export default function ProfilePage() {
     const { data: session, status } = useSession();
 const [userName,setUserName]= useState('')
@@ -96,7 +95,7 @@ const router = useRouter();
 
     return (
         <section className="mt-8">
-      <UserTabs isAdmin={isAdmin}/>
+      <UserTabs isAdmin={true}/>
             
             <div className='max-w-md mx-auto mt-8 '>
                
