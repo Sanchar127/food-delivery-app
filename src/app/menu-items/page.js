@@ -3,6 +3,7 @@ import { useState } from "react";
 import UserTabs from "../../components/layout/UserTabs";
 import { useProfile } from "../../components/UseProfile";
 import Link from 'next/link'
+import Right from "../../components/layout/icons/Right";
 export default function MenuItemsPage(){
 
   const {loading,data}= useProfile()
@@ -20,9 +21,17 @@ export default function MenuItemsPage(){
 
  
   return (
-    <section className="mt-8">
+    <section className="mt-8 max-w-md mx-auto">
       <UserTabs isAdmin={true}/>
-      <Link href={'/menu-items/new'}>The main funciton </Link>
+      <div className="mt-8 ">
+
+      <Link className="button flex" href={'/menu-items/new'}>
+      <span>
+        Create new menu item
+        </span>
+      <Right/>
+       </Link>
+      </div>
     </section>
   )
 }
