@@ -5,7 +5,10 @@ import { useSession } from "next-auth/react";
 import UserTabs from "../../../components/layout/UserTabs"
 import Image from 'next/image'; // Import Next.js Image component
 import { toast } from 'react-hot-toast'; // Import toast for notifications
-
+import Right from '../../../components/layout/icons/Right';
+import Link from 'next/link';
+import Left from '../../../components/layout/icons/Left'
+import { redirect } from 'next/navigation';
 const NewMenuItemPage = () => {
     const { loading, data } = useProfile(); // Only one declaration
     const [image, setImage] = useState('');
@@ -13,13 +16,13 @@ const NewMenuItemPage = () => {
     const [description, setDescription] = useState('');
     const [basePrice, setBasePrice] = useState('');
     const { data: session } = useSession(); // Destructure session
-    
+    const [redirectToItems,setRedirectToItems]=useState(false)
     async function handleFormSubmit(ev) {
         ev.preventDefault();
         const data = { image, name, description, basePrice };
         
         const savingPromise = new Promise(async (resolve, reject) => {
-            const response = await fetch('api/menu-items', {
+            const response = await fetch('../api/menu-items', {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: { 'Content-Type': 'application/json' }
@@ -34,7 +37,11 @@ const NewMenuItemPage = () => {
             success: 'Saved successfully!',
             error: 'Error saving item'
         });
+        setRedirectToItems(true)
     }
+   if(redirectToItems){
+   return redirect('/menu-items')
+   }
 
     if (loading) {
         return 'Loading user info...';
@@ -57,6 +64,14 @@ const NewMenuItemPage = () => {
     return (
         <section className="mt-8">
             <UserTabs isAdmin={true} />
+            <div className='max-w-md mx-auto mt-8'>
+
+              <Link href={'/menu-items'} className='button'>
+              <Left/>
+              <span>Show all menu items</span>
+          
+              </Link>
+            </div>
             <form onSubmit={handleFormSubmit} className="mt-8 max-w-md mx-auto">
                 <div className="flex items-start gap-4">
                     <div className='p-2 rounded-lg relative'>
