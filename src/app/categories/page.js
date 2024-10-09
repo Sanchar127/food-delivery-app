@@ -16,6 +16,7 @@ export default function Categories(){
     }, []);
     
     function fetchCategories(){
+        console.log("hello from category")
         fetch('/api/categories')
             .then(res => res.json())
             .then(categories => {
@@ -94,7 +95,7 @@ export default function Categories(){
              setEditedCategory(c);
              setCategoryName(c.name);
          }}
-         className="bg-gray-200 rounded-xl p-2 px-4 flex gap-2 cursor-pointer mb-2"
+         className="rounded-xl p-2 px-4 flex gap-2 cursor-pointer mb-2"
      >
          <span>{c.name}</span>
      </button>

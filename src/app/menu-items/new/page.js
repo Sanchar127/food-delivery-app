@@ -2,13 +2,15 @@
 import { useState } from 'react';
 import { useProfile } from "../../../components/UseProfile";
 import { useSession } from "next-auth/react";
-import UserTabs from "../../../components/layout/UserTabs"
+
 import Image from 'next/image'; // Import Next.js Image component
 import { toast } from 'react-hot-toast'; // Import toast for notifications
 import Right from '../../../components/layout/icons/Right';
 import Link from 'next/link';
 import Left from '../../../components/layout/icons/Left'
 import { redirect } from 'next/navigation';
+import UserTabs from '../../../components/layout/UserTabs';
+
 const NewMenuItemPage = () => {
     const { loading, data } = useProfile(); // Only one declaration
     const [image, setImage] = useState('');
@@ -63,7 +65,7 @@ const NewMenuItemPage = () => {
 
     return (
         <section className="mt-8">
-            <UserTabs isAdmin={true} />
+            <UserTabs isAdmin={true}/>
             <div className='max-w-md mx-auto mt-8'>
 
               <Link href={'/menu-items'} className='button'>

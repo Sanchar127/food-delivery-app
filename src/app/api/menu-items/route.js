@@ -12,7 +12,7 @@ export async function POST(req) {
         // Parse the request body
         const data = await req.json();
 
-        // Create a new menu item document in the database
+        // Create a new menu item document in the databases
         const menuItemDoc = await MenuItem.create(data);
 
         // Return the created document as a JSON response
