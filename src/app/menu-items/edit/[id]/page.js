@@ -1,80 +1,114 @@
-'use client';
-import { useEffect, useState } from "react";
 
+"use client"
+import { useEffect, useState } from 'react';
 import { useProfile } from "../../../../components/UseProfile";
+import { useSession } from "next-auth/react";
+import UserTabs from "../../../../components/layout/UserTabs"
+import Image from 'next/image'; // Import Next.js Image component
+import { toast } from 'react-hot-toast'; // Import toast for notifications
+import Right from '../../../../components/layout/icons/Right';
 import Link from 'next/link';
-import Right from "../../../../components/layout/icons/Right";
-import Image from "next/image";
-import UserTabs from "../../../../components/layout/UserTabs";
-export default function  EditMenuItemPage()
-{
-    const [menuItems, setMenuItems] = useState([]);
-    const [menuLoading, setMenuLoading] = useState(true); // Loading state for menu items
-    const { loading: profileLoading, data } = useProfile(); // Rename loading to profileLoading to avoid conflicts
+import Left from '../../../../components/layout/icons/Left'
+import { redirect, useParams } from 'next/navigation';
+export default function EditMenuItemPage(){
+  const {id}=useParams()
+  const { loading, data } = useProfile(); // Only one declaration
+  const [image, setImage] = useState('');
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [basePrice, setBasePrice] = useState('');
+  const { data: session } = useSession(); // Destructure session
+  const [redirectToItems,setRedirectToItems]=useState(false)
+
+  useEffect(()=>{
   
-    useEffect(() => {
-      // Fetch menu items from the API
-      fetch('../../api/menu-items')
-        .then((res) => res.json())
-        .then((menuItems) => {
-          setMenuItems(menuItems); // Set the menu items state
-          setMenuLoading(false);  // Mark loading as false
-        })
-        .catch((error) => {
-          console.error("Failed to fetch menu items", error);
-          setMenuLoading(false);  // Mark loading as false even if there’s an error
-          alert("Failed to load menu items, please try again later.");
-        });
-    }, []);
-  
-    // Handle profile loading state
-    if (profileLoading) {
-      return 'Loading user info...';
-    }
-  
-    // Handle if the user is not an admin
-    if (!data?.admin) {
-      return 'Not an admin';
-    }
-  
-    return (
-      <section className="mt-8 max-w-md mx-auto">
-        <UserTabs isAdmin={true} />
-        
-        <div className="mt-8">
-          <Link className="button flex" href="/menu-items/new">
-            <span>Create new menu item</span>
-            <Right />
-          </Link>
-        </div>
-  
-        <div className="mt-4">
-          {menuLoading ? (
-            <div>Loading menu items...</div> // Loading state for menu items
-          ) : (
-            <>
-              <h2 className="text-sm text-gray-500 mt-8">Edit menu item:</h2>
-              <div className="grid grid-cols-3 gap-2">
-  
-              {menuItems?.length > 0 ? (
-                menuItems.map((item) => (
-                  <Link href={`/menu-items/edit/${item._id}`} key={item._id} className=" bg-gray-200  rounded-lg p-4">
-                    <div className="relative">
-                      <Image className="rounded-md" src={item.image} alt={`image`} width={200} height={200} />
-                    </div>
-                    <div className="text-center">
-  
-                    {item.name}
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div>No menu items found.</div>
-              )}
-          </div>
-            </>
-          )}
-        </div>
-      </section>
-    );
+    fetch('/api/menu-items').then(res=>{
+      res.json().then(items=>{
+          const item =items.find(i=>i._id===id)
+          setImage(item.image)
+          setName(item.name)
+          setDescription(item.description)
+          setBasePrice(item.basePrice)
+          console.log(item)
+      })
+    })
+  },[id])
+
+  async function handleFormSubmit(ev) {
+      ev.preventDefault();
+      const data = { image, name, description, basePrice,_id:id};
+      
+      const savingPromise = new Promise(async (resolve, reject) => {
+          const response = await fetch('../../api/menu-items', {
+              method: 'PUT',
+              body: JSON.stringify(data),
+              headers: { 'Content-Type': 'application/json' }
+          });
+
+          if (response.ok) resolve();
+          else reject();
+      });
+
+      await toast.promise(savingPromise, {
+          loading: 'Saving this tasty item',
+          success: 'Saved successfully!',
+          error: 'Error saving item'
+      });
+      setRedirectToItems(true)
   }
+ if(redirectToItems){
+ return redirect('/menu-items')
+ }
+
+  if (loading) {
+      return 'Loading user info...';
+  }
+
+  if (!data?.admin) {
+      return 'Not an admin';
+  }
+
+  async function handleFileChange(ev) {
+      const file = ev.target.files[0];
+      if (file) {
+          // handle file upload logic here
+          setImage(file);
+      }
+  }
+
+  const userImage = session?.user?.image;
+
+  return (
+      <section className="mt-8">
+          <UserTabs isAdmin={true} />
+          <div className='max-w-md mx-auto mt-8'>
+
+            <Link href={'/menu-items'} className='button'>
+            <Left/>
+            <span>Show all menu items</span>
+        
+            </Link>
+          </div>
+          <form onSubmit={handleFormSubmit} className="mt-8 max-w-md mx-auto">
+              <div className="flex items-start gap-4">
+                  <div className='p-2 rounded-lg relative'>
+                      <Image className='rounded-lg w-full h-full mb-1' src={userImage} width={250} height={250} alt='avatar' />
+                      <label>
+                          <input type='file' className='hidden' onChange={handleFileChange} />
+                          <span className='block border rounded-lg p-4 text-center border-gray-300 cursor-pointer'>Edit</span>
+                      </label>
+                  </div>
+                  <div className="grow">
+                      <label>Item Name</label>
+                      <input type="text" value={name} onChange={ev => setName(ev.target.value)} />
+                      <label>Description</label>
+                      <input type="text" value={description} onChange={ev => setDescription(ev.target.value)} />
+                      <label>Base Price</label>
+                      <input type="text" value={basePrice} onChange={ev => setBasePrice(ev.target.value)} />
+                      <button type="submit">Save</button>
+                  </div>
+              </div>
+          </form>
+      </section>
+  );
+}
