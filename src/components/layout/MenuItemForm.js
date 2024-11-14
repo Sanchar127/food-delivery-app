@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from 'next/image'; // Import Image component from Next.js
+import MenuItemPriceProps from "./MenuItemPriceProps";
 
 export default function MenuItemForm({ onSubmit, menuItem }) {
     const [image, setImage] = useState(menuItem?.image || '');
@@ -7,12 +8,15 @@ export default function MenuItemForm({ onSubmit, menuItem }) {
     const [description, setDescription] = useState(menuItem?.description || '');
     const [basePrice, setBasePrice] = useState(menuItem?.basePrice || '');
     const [sizes, setSizes] = useState([]);
+    const [extraIngredientPrices, setExtraIngredientPrices] = useState([]);
 
-    // Handle file change event
-    const addSize = (ev) => {
-        ev.preventDefault(); // Prevent form submission
-        setSizes(oldSizes => [...oldSizes, { name: '', price: 0 }]);
-    };
+    useEffect(() => {
+        return () => {
+            if (image.startsWith("blob:")) {
+                URL.revokeObjectURL(image); // Clean up image URL when the component unmounts
+            }
+        };
+    }, [image]);
 
     const handleFileChange = (ev) => {
         const file = ev.target.files[0];
@@ -22,21 +26,9 @@ export default function MenuItemForm({ onSubmit, menuItem }) {
         }
     };
 
-    const editSize = (ev, index, prop) => {
-        const newValue = ev.target.value;
-        setSizes(prevSizes => {
-            const newSizes = [...prevSizes];
-            newSizes[index][prop] = newValue;
-            return newSizes;
-        });
-    };
-function removeSize(indexToRemove){
-    setSizes(prev=>prev.filter((v,index)=>index!==indexToRemove))
-}
-    // Handle form submission
     const handleSubmit = (ev) => {
         ev.preventDefault();
-        onSubmit(ev, { image, name, description, basePrice });
+        onSubmit(ev, { image, name, description, basePrice: parseFloat(basePrice), sizes, extraIngredientPrices });
     };
 
     return (
@@ -81,38 +73,13 @@ function removeSize(indexToRemove){
                         required
                         className="w-full border border-gray-300 p-2 rounded mt-1"
                     />
-                    <div className="bg-gray-200 p-2 rounded-md mb-2">
-                        <label>Sizes</label>
-                        {sizes.map((size, index) => (
-                            <div className="flex gap-2 items-end" key={index}>
-                                <div>
-                                    <label>Size Name</label>
-                                    <input
-                                        type="text"
-                                        placeholder="size name"
-                                        value={size.name}
-                                        onChange={(ev) => editSize(ev, index, 'name')}
-                                        className="w-full border border-gray-300 p-2 rounded mt-1"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label>Extra Price</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Extra price"
-                                        value={size.price}
-                                        onChange={(ev) => editSize(ev, index, 'price')}
-                                        className="w-full border border-gray-300 p-2 rounded mt-1"
-                                    />
-                                </div>
-                                <div>
-                                    <button className="bg-white" type="button" onClick={()=> removeSize(index)}>x</button>
-                                </div>
-                            </div>
-                        ))}
-                        <button onClick={addSize} className="bg-white p-2 border border-gray-300 rounded mt-2">Add item size</button>
-                    </div>
+                    <MenuItemPriceProps name="Sizes" addLevel="Add item size" props={sizes} setProps={setSizes} />
+                    <MenuItemPriceProps
+                        name="Extra ingredients"
+                        addLevel="Add ingredient price"
+                        props={extraIngredientPrices}
+                        setProps={setExtraIngredientPrices}
+                    />
                     <button type="submit" className="mt-4 p-2 bg-blue-500 text-white rounded">Save</button>
                 </div>
             </div>
