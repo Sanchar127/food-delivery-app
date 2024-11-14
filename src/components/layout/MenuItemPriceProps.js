@@ -1,7 +1,10 @@
 import Trash from '../layout/icons/Trash';
 import Plus from '../layout/icons/Plus';
-
+import ChevronDown from '../../components/layout/icons/ChevronDown'
+import ChevronUp from '../../components/layout/icons/ChevronUp'
+import { useState } from 'react';
 export default function MenuItemPriceProps({ name, addLevel, props, setProps }) {
+    const [isOpen,setIsOpen]=useState(false)
     
     const addProps = (ev) => {
         ev.preventDefault(); // Prevent form submission
@@ -20,13 +23,29 @@ export default function MenuItemPriceProps({ name, addLevel, props, setProps }) 
     const removeProps = (indexToRemove) => {
         setProps(prev => prev.filter((_, index) => index !== indexToRemove));
     };
+           // onClick={()=> setIsOpen(prev=>!prev)}
+       //className={isOpen ? 'block' :'hidden'}
 
     return (
         <div className="bg-gray-200 p-2 rounded-md mb-2 mt-2">
-            <label>{name}</label>
-            {props.map((size, index) => (
+      
+    
+            <button type='button' onClick={()=> setIsOpen(prev=>!prev)} className='inline-flex p-1 border-0 justify-start'>
+                {isOpen &&(
+                    <ChevronUp/>
+                )}
+                {!isOpen&&(
+
+                <ChevronDown/>
+                )}
+            <span>{name}</span>
+            <span>{props?.length}</span>
+            </button>
+
+           <div className={isOpen ? 'block' :'hidden'}>
+           {props.map((size, index) => (
                 <div className="flex gap-2 items-end mt-4" key={index}>
-                    <div>
+                    <div >
                         <label>Name</label>
                         <input
                             type="text"
@@ -37,7 +56,7 @@ export default function MenuItemPriceProps({ name, addLevel, props, setProps }) 
                         />
                     </div>
 
-                    <div>
+                    <div >
                         <label>Extra Price</label>
                         <input
                             type="number"
@@ -58,6 +77,9 @@ export default function MenuItemPriceProps({ name, addLevel, props, setProps }) 
                 <Plus />
                 <span>{addLevel}</span>
             </button>
+           </div>
+      
+          
         </div>
     );
 }

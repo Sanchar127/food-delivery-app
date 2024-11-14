@@ -87,18 +87,23 @@ export default function Categories(){
            </form>
            
            <div>
-    <h2 className="mt-8 text-sm text-gray-500">Edit category:</h2>
+    <h2 className="mt-8 text-sm text-gray-500">Existing Categories:</h2>
     {categories?.length > 0 && categories.map(c => (
-         <button
+         <div
      
-         onClick={() => {
+        
+         className="bg-gray-100 rounded-xl p-2 px-4 flex gap-2  mb-2"
+     >
+         <div className="grow "  >{c.name}</div>
+         <div className="flex gap-1">
+
+         <button type="button" onClick={() => {
              setEditedCategory(c);
              setCategoryName(c.name);
-         }}
-         className="rounded-xl p-2 px-4 flex gap-2 cursor-pointer mb-2"
-     >
-         <span>{c.name}</span>
-     </button>
+         }}>Edit</button>
+         <button type="button">Delete</button>
+            </div>
+     </div>
         
     ))}
            </div>
